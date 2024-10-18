@@ -1,0 +1,85 @@
+dev:
+  minikube: false
+  supabase_host: "cdk-provided-value"
+
+secret:
+  jwt:
+    anonKey: "cdk-provided-value"
+    serviceKey: "cdk-provided-value"
+    secret: "cdk-provided-value"
+  smtp:
+    username: your-mail@example.com
+    password: example123456
+  dashboard:
+    username: "cdk-provided-value"
+    password: "cdk-provided-value"
+  db:
+    username: postgres
+    password: example123456
+    database: postgres
+  analytics:
+    apiKey: your-super-secret-and-long-logflare-key
+  walg:
+    accessKeyId: "cdk-provided-value"
+    secretAccessKey: "cdk-provided-value"
+
+
+auth:
+  env:
+    GOTRUE_API_HOST: "0.0.0.0"
+    GOTRUE_API_PORT: "9999"
+
+    GOTRUE_DB_DRIVER: "postgres"
+
+    GOTRUE_URI_ALLOW_LIST: ""
+    GOTRUE_DISABLE_SIGNUP: false
+
+    GOTRUE_JWT_ADMIN_ROLES: "service_role"
+    GOTRUE_JWT_AUD: "authenticated"
+    GOTRUE_JWT_DEFAULT_GROUP_NAME: "authenticated"
+    GOTRUE_JWT_EXP: "3600"
+
+    GOTRUE_EXTERNAL_EMAIL_ENABLED: true
+    GOTRUE_MAILER_AUTOCONFIRM: false
+    # GOTRUE_MAILER_SECURE_EMAIL_CHANGE_ENABLED: 'true'
+    # GOTRUE_SMTP_MAX_FREQUENCY: '1s'
+    GOTRUE_SMTP_ADMIN_EMAIL: "admin@example.com"
+    GOTRUE_SMTP_HOST: "supabasemail"
+    GOTRUE_SMTP_PORT: 2500
+    GOTRUE_SMTP_USER: "fake_mail_user"
+    GOTRUE_SMTP_PASS: "fake_mail_password"
+    GOTRUE_SMTP_SENDER_NAME: "fake_sender"
+    GOTRUE_MAILER_URLPATHS_INVITE: "/auth/v1/verify"
+    GOTRUE_MAILER_URLPATHS_CONFIRMATION: "/auth/v1/verify"
+    GOTRUE_MAILER_URLPATHS_RECOVERY: "/auth/v1/verify"
+    GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: "/auth/v1/verify"
+
+    GOTRUE_EXTERNAL_PHONE_ENABLED: true
+    GOTRUE_SMS_AUTOCONFIRM: false
+
+rest:
+  env:
+    PGRST_DB_SCHEMAS: "public,storage,intadmin,graphql_public,finance"
+    PGRST_DB_EXTRA_SEARCH_PATH: "public,extensions"
+    PGRST_DB_ANON_ROLE: "anon"
+    PGRST_DB_USE_LEGACY_GUCS: "false"
+    PGRST_ADMIN_SERVER_PORT: "3001" # For health check
+
+storage:
+  env:
+    FILE_SIZE_LIMIT:  "52428800"
+    STORAGE_BACKEND:  "s3"
+    TENANT_ID:  "stub"
+    REGION:  "us-east-1"
+    ENABLE_IMAGE_TRANSFORMATION:  "false"
+    GLOBAL_S3_BUCKET:  "cdk-provided-value"
+    AWS_ACCESS_KEY_ID:  "cdk-provided-value"
+    AWS_SECRET_ACCESS_KEY:  "cdk-provided-value"
+    
+    # Storage strip response localtion headers /storage/v1 part
+    # https://github.com/supabase/storage/issues/331
+    TUS_URL_PATH: "/storage/v1/upload/resumable"
+
+    # SMART CDN
+    WEBHOOK_API_KEY: "cdk-provided-value"
+    WEBHOOK_URL: "cdk-provided-value"

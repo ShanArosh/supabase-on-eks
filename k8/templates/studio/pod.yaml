@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: studio
+  labels:
+    app: studio
+spec:
+  containers:
+    - name: studio
+      image: ghcr.io/supabase/studio:20240923-2e3e90c
+      ports:
+        - containerPort: 3000
+      env:
+        - name: DEFAULT_ORGANIZATION_NAME
+          value: default
+        - name: DEFAULT_PROJECT_NAME
+          value: default
+        - name: SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: jwt
+              key: anonKey
+        - name: SUPABASE_SERVICE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: jwt
+              key: serviceKey
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db
+              key: password
+        - name: STUDIO_PG_META_URL
+          value: http://meta
+        # this env used in infamous studio api request to storage
+        - name: SUPABASE_URL
+          value: "http://kong"
+        - name: SUPABASE_PUBLIC_URL
+          value: "https://{{ .Values.dev.supabase_host }}"
+        - name: LOGFLARE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: analytics
+              key: apiKey
+        - name: LOGFLARE_URL
+          value: http://analytics:4000
+        - name: NEXT_PUBLIC_ENABLE_LOGS
+          value: "true"
+        - name: NEXT_ANALYTICS_BACKEND_PROVIDER
+          value: postgres

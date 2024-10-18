@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kong-ingress
+  annotations:
+    # kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/group.name: supabase-alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /status
+    alb.ingress.kubernetes.io/healthcheck-port: '8100'
+spec:
+{{ if eq .Values.dev.minikube false }}
+  ingressClassName: alb
+{{ else }}
+  ingressClassName: nginx
+{{ end }}
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kong
+                port:
+                  number: 80
+      {{- if .Values.dev.supabase_host }}
+      host: {{ .Values.dev.supabase_host }}
+      {{- end -}}
+

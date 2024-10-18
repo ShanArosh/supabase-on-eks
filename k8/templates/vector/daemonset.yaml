@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: vector
+  labels:
+    app: vector
+spec:
+  # replicas: 1
+  selector:
+    matchLabels:
+      app: vector
+  template:
+    metadata:
+      labels:
+        app: vector
+    spec:
+      serviceAccountName: vector-sa
+      containers:
+        - name: vector
+          image: timberio/vector:0.28.1-alpine
+          args: ["--config", "/etc/vector/vector.yml"]
+          ports:
+            - containerPort: 8686
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/vector
+            - name: var-log
+              mountPath: /var/log/
+              readOnly: true
+            # - name: vector-config
+            #   mountPath: /etc/vector/secret.sh
+            #   subPath: secret.sh
+          env:
+            #   {{- range $key ,$value := .Values.rest.env }}
+            #     - name: {{ $key }}
+            #       value: {{ $value | toString | quote }}
+            #   {{- end }}
+            - name: LOGFLARE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: analytics
+                  key: apiKey
+            - name: VECTOR_LOG
+              value: "info"
+            - name: VECTOR_SELF_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: VECTOR_SELF_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: VECTOR_SELF_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+      volumes:
+        - name: config-volume
+          configMap:
+            name: vector-config
+            defaultMode: 0777
+        - name: var-log
+          hostPath:
+            path: /var/log/

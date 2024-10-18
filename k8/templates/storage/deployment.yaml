@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage
+  labels:
+    app: storage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storage
+  template:
+    metadata:
+      labels:
+        app: storage
+    spec:
+      containers:
+        - name: storage
+          image: supabase/storage-api:v1.0.6
+          ports:
+            - containerPort: 5000
+          env:
+          {{- range $key ,$value := .Values.storage.env }}
+            - name: {{ $key }}
+              value: {{ $value | toString | quote }}
+          {{- end }}
+            - name: ANON_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt
+                  key: anonKey
+            - name: SERVICE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt
+                  key: serviceKey
+            - name: PG_META_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: database
+            - name: PG_META_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: password
+            - name: DATABASE_URL
+              value: postgres://supabase_storage_admin:$(PG_META_DB_PASSWORD)@db-rw:5432/$(PG_META_DB_NAME)
+            - name: PGRST_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt
+                  key: secret
+            - name: POSTGREST_URL
+              value: http://rest

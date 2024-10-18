@@ -1,0 +1,22 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: analytics-db
+spec:
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: superuser-secret
+  bootstrap:
+    initdb:
+      database: analytics
+      owner: supabase_admin
+      secret:
+        name: app-secret
+      # FIXME: postInitSQL failed to create schema
+      # postInitSQL:
+      #   - create schema if not exists _analytics;
+      #   - alter schema _analytics owner to supabase_admin;
+  instances: 1
+  storage:
+    storageClass: gp3
+    size: 2Gi

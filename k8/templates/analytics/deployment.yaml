@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analytics
+  labels:
+    app: analytics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: analytics
+  template:
+    metadata:
+      labels:
+        app: analytics
+    spec:
+      containers:
+        - name: analytics
+          image: supabase/logflare:1.8.10
+          ports:
+            - containerPort: 4000
+          env:
+            # {{- range $key ,$value := .Values.rest.env }}
+            #   - name: {{ $key }}
+            #     value: {{ $value | toString | quote }}
+            # {{- end }}
+            - name: DB_DATABASE
+              value: analytics
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: password
+            - name: DB_HOSTNAME
+              value: analytics-db-rw
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: username
+            - name: POSTGRES_BACKEND_URL
+              value: postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOSTNAME):5432/$(DB_DATABASE)
+            - name: LOGFLARE_NODE_HOST
+              value: 127.0.0.1
+            - name: LOGFLARE_SINGLE_TENANT
+              value: "true"
+            - name: LOGFLARE_SUPABASE_MODE
+              value: "true"
+            - name: DB_SCHEMA
+              value: public
+            - name: POSTGRES_BACKEND_SCHEMA
+              value: public
+            - name: LOGFLARE_FEATURE_FLAG_OVERRIDE
+              value: multibackend=t
+            - name: LOGFLARE_LOG_LEVEL
+              value: debug
+            - name: LOGFLARE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: analytics
+                  key: apiKey

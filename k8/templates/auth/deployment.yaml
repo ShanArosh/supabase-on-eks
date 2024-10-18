@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+  labels:
+    app: auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: supabase/gotrue:v2.151.0
+          ports:
+            - containerPort: 9999
+          env:
+          {{- range $key ,$value := .Values.auth.env }}
+          - name: {{ $key }}
+            value: {{ $value | toString | quote }}
+          {{- end }}
+          - name: GOTRUE_SITE_URL
+            value: "https://{{.Values.domain}}"
+          - name: SITE_URL
+            value: "https://{{.Values.domain}}"
+          - name: API_EXTERNAL_URL
+            value: "https://{{.Values.domain}}"
+          - name: GOTRUE_JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: jwt
+                key: secret
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db
+                key: password
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: db
+                key: database
+          - name: GOTRUE_DB_DATABASE_URL
+            value: postgres://supabase_auth_admin:$(POSTGRES_PASSWORD)@db-rw:5432/$(POSTGRES_DB)

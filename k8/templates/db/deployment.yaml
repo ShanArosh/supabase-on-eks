@@ -1,0 +1,67 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: db
+spec:
+  imageName: ghcr.io/shanarosh/cnpg-supabase:15.1.1.38
+  instances: 1
+  superuserSecret:
+    name: superuser-secret
+  enableSuperuserAccess: true
+  postgresql:
+    pg_ident:
+      - local        postgres supabase_admin
+      # - supabase_map postgres supabase_admin
+      # - supabase_map  gotrue     supabase_auth_admin
+      # - supabase_map  postgrest  authenticator
+      # - supabase_map  adminapi   postgres
+    shared_preload_libraries:
+      - pg_net
+      - pg_stat_statements
+      - pg_stat_monitor
+      - pgaudit
+      - plpgsql
+      - plpgsql_check
+      - pg_cron
+      # - pgsodium FATAL:  The getkey script \"/usr/share/postgresql/15/extension/pgsodium_getkey\" does not exist
+      - timescaledb
+      - auto_explain
+      - pg_tle
+    pg_hba:
+      # - local all supabase_admin scram-sha-256
+      # -  # trust local connections
+      # - local all  supabase_admin     scram-sha-256
+      # - local all  all                peer map=supabase_map
+      # - host  all  all  127.0.0.1/32  trust
+      # - host  all  all  ::1/128       trust
+      # -  # IPv4 external connections
+      # - host  all  all  10.0.0.0/8  scram-sha-256
+      # - host  all  all  172.16.0.0/12  scram-sha-256
+      # - host  all  all  192.168.0.0/16  scram-sha-256
+      # - host  all  all  0.0.0.0/0     scram-sha-256
+      # IPv6 external connections
+      # - host  all  all  ::0/0     scram-sha-256
+  env:
+    - name: POSTGRES_HOST
+      value: /controller/run
+    - name: POSTGRES_USER
+      valueFrom:
+        secretKeyRef:
+          name: db
+          key: username
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: db
+          key: password
+    - name: JWT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: jwt
+          key: secret
+    - name: JWT_EXP
+      value: "3600"
+
+  storage:
+    storageClass: gp3
+    size: 2Gi

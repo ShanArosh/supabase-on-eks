@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rest
+  labels:
+    app: rest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rest
+  template:
+    metadata:
+      labels:
+        app: rest
+    spec:
+      containers:
+        - name: rest
+          image: postgrest/postgrest:v12.0.1
+          ports:
+            - containerPort: 3000
+          env:
+          {{- range $key ,$value := .Values.rest.env }}
+            - name: {{ $key }}
+              value: {{ $value | toString | quote }}
+          {{- end }}
+            - name: PG_META_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: database
+            - name: PG_META_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: password
+            - name: PGRST_DB_URI
+              value: postgres://authenticator:$(PG_META_DB_PASSWORD)@db-rw:5432/$(PG_META_DB_NAME)
+            - name: PGRST_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt
+                  key: secret
+            - name: PGRST_APP_SETTINGS_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt
+                  key: secret
+            - name: PGRST_APP_SETTINGS_JWT_EXP
+              value: "3600"
