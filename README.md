@@ -12,6 +12,15 @@ Inspired By Supabase Community Repository [supabase-on-aws](https://github.com/s
 
 ## Prerequisits
 
+- setup env variables
+```bash
+# the domain must have been registered with route53
+DOMAIN = example.com
+
+# get the ARN from console after the first deployment and run deploy again after setting the variable to ingress controller alb
+INGRESS_ALB_ARN = example-arn 
+```  
+
 ## Deploy via CDK
 
 ```bash
