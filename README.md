@@ -2,7 +2,7 @@
 
 Self-hosted Supabase on AWS Elastic Kubernates
 
-Inspired By Supabase Community Repository ![Supabase-on-aws](https://github.com/supabase-community/supabase-on-aws)
+Inspired By Supabase Community Repository [supabase-on-aws](https://github.com/supabase-community/supabase-on-aws)
 
 ## Architecture
 
